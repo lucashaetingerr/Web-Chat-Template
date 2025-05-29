@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radian AI</title>
+
+    
+    <style>
+        /*paleta*/
+        :root{
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --text-light-color: #777777;
+            --border-color: #eeeeee;
+            --border-darker-color: #cccccc;
+            --user-message-bg: #000000;
+            --user-message-text: #ffffff;
+            --ai-message-bg: #f0f0f0;
+            --ai-message-text: #000000;
+            --logo-yellow: #FFD700;
+            --link-color: #000000;
+            --link-hover-color: #555555;
+            --button-hover-bg-color: #f0f0f0;
+            --button-active-bg-color: #e0e0e0;
+            --disabled-bg-color: #f5f5f5;
+            --disabled-text-color: #aaaaaa;
+            --disabled-border-color: #e0e0e0;
+            --font-family-main: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+        }
+
+
+        * {
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
+
+
+        html,
+        body{
+            height:100vh;
+            overflow: hidden;
+        }
+
+
+
+        body{
+            font-family:var(--font-family-main);
+            display:flex;
+            flex-direction: column;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+
+
+        header{
+            padding: 20px 30px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            background-color: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink:0;
+            position: relative;
+            z-index:10;
+        }
+
+
+        .logo-text{
+            font-size:1.8em;
+            font-weight:700;
+            background:linear-gradient(to right, #000000 30%, var(--logo-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color:transparent;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+
+        .header-actions{
+            display:flex;
+            align-items:center;
+        }
+
+
+        .header-actions button{
+            margin-left:15px;
+            padding: 8px 16px;
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
+            border-radius:6px;
+            cursor: pointer;
+            font-weight:500;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+
+
+        .header-actions button.login:disabled, .header-actions button.signup:disabled{
+            background-color:var(--disabled-bg-color);
+            color:var(--disabled-text-color);
+            border-color: var(--disabled-border-color);
+            cursor:not-allowed;
+        }
+
+
+        .header-actions button.login:disabled:hover, .header-actions button.signup:disabled:hover{
+            background-color: var(--disabled-bg-color);
+            color:var(--disabled-text-color);
+            border-color:var(--disabled-border-color);
+        }
+
+
+
+        .header-actions button.login{
+            background-color:var(--text-color);
+            color:var(--background-color);
+        }
+
+
+        .header-actions button.login:not(:disabled):hover{
+            background-color: #333333;
+            border-color: #333333;
+        }
+
+
+
+        .header-actions button.login:not(:disabled):active{
+            background-color: #222222;
+            transform:scale(0.98);
+        }
+
+
+
+        .header-actions button.signup:not(:disabled):hover{
+            background-color: var(--text-color);
+            color:var(--background-color);
+        }
+
+
+
+        .header-actions button.signup:not(:disabled):active{
+            background-color: #333333;
+            color: var(--background-color);
+            transform: scale(0.98);
+        }
+
+
+
+        .header-actions button.help-icon{
+            border:none;
+            font-size: 1.3em;
+            padding: 5px 8px;
+            border-radius:50%;
+            color:var(--text-light-color);
+        }
+
+
+        .header-actions button.help-icon:hover{
+            color:var(--text-color);
+            background-color: var(--button-hover-bg-color);
+        }
+
+        .header-actions button.help-icon:active{
+            background-color: var(--button-active-bg-color);
+            transform: scale(0.95);
+        }
+
+
+        .main-content-area{
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .initial-view{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            flex-grow: 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .initial-view.hidden{
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .initial-view h1{
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .suggestion-buttons-initial{
+            display:flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+            max-width: 700px;
+        }
+
+        .suggestion-buttons-initial button{
+            background-color: var(--background-color);
+            border: 1px solid var(--border-darker-color);
+            border-radius: 25px;
+            padding: 12px 22px;
+            cursor:pointer;
+            font-size: 0.95em;
+            color: var(--text-color);
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .suggestion-buttons-initial button:hover{
+            background-color: var(--button-hover-bg-color);
+            border-color: #bbbbbb;
+        }
+
+        .suggestion-buttons-initial button:active{
+            background-color: var(--button-active-bg-color);
+            transform: scale(0.98);
+        }
+
+        .initial-input-area{
+            display: flex;
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--background-color);
+            border-radius: 30px;
+            border: 1px solid var(--border-darker-color);
+            padding: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .initial-input-area:focus-within{
+            border-color: var(--text-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #initial-message-input-element{
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 1em;
+            padding: 10px 15px;
+            background-color: transparent;
+            color: var(--text-color);
+        }
+
+        #initial-send-button-element{
+            background-color: var(--text-color);
+            color: var(--background-color);
+            border: none;
+            border-radius: 22px;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        #initial-send-button-element:hover{
+            background-color: #333333;
+        }
+
+        #initial-send-button-element:active{
+            background-color: #222222;
+            transform: scale(0.98);
+        }
+
+        .chat-view-container{
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.2s;
+            align-items: center;
+        }
+
+        .chat-view-container.visible{
+            display: flex;
+            opacity: 1;
+        }
+
+        #chat-messages-container{
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        #chat-messages-container::-webkit-scrollbar{
+            width: 8px;
+        }
+
+        #chat-messages-container::-webkit-scrollbar-track{
+            background: transparent;
+        }
+
+        #chat-messages-container::-webkit-scrollbar-thumb{
+            background: #cccccc;
+            border-radius: 4px;
+        }
+
+        #chat-messages-container::-webkit-scrollbar-thumb:hover{
+            background: #bbbbbb;
+        }
+
+        .message-bubble{
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 75%;
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .message-bubble.user{
+            background-color: var(--user-message-bg);
+            color: var(--user-message-text);
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message-bubble.ai{
+            background-color: var(--ai-message-bg);
+            color: var(--ai-message-text);
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+        }
+
+        .chat-input-area-bottom{
+            display: flex;
+            padding: 15px 20px;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+
+        #chat-message-input-bottom-element{
+            flex-grow:1;
+            padding: 12px 18px;
+            border: 1px solid var(--border-darker-color);
+            border-radius: 25px;
+            font-size: 1em;
+            margin-right: 10px;
+            outline: none;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            transition: border-color 0.2s ease;
+        }
+
+
+
+        #chat-message-input-bottom-element:focus{
+            border-color: var(--text-color);
+        }
+
+
+        #chat-send-button-bottom-element{
+            background-color: var(--text-color);
+            color: var(--background-color);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease,transform 0.1s ease;
+        }
+
+
+        #chat-send-button-bottom-element:hover{
+            background-color: #333333;
+        }
+
+
+        #chat-send-button-bottom-element:active{
+            background-color: #222222;
+            transform: scale(0.98);
+        }
+
+
+        footer{
+            font-size: 0.8em;
+            color: var(--text-light-color);
+            padding: 15px 30px 10px 30px;
+            text-align: center;
+            background-color: transparent;
+            flex-shrink:0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+
+        footer p{
+            margin:0;
+        }
+        footer a{
+            color: var(--link-color);
+            text-decoration: underline;
+            font-weight: normal;
+            cursor:pointer;
+            transition: color 0.2s ease;
+        }
+
+
+        footer a:hover{
+            color: var(--link-hover-color);
+        }
+
+
+        footer a:active{
+            color: var(--text-color);
+        }
+
+
+        .modal-overlay{
+            position: fixed;
+            top: 0;
+            left:0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+
+        .modal-overlay.visible{
+            display: flex;
+            opacity: 1;
+        }
+
+
+
+        .modal-content{
+            background-color: var(--background-color);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+
+        .modal-overlay.visible .modal-content{
+            transform: scale(1);
+        }
+        .modal-content::-webkit-scrollbar{
+            width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-track{
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        .modal-content::-webkit-scrollbar-thumb{
+            background: var(--border-darker-color);
+            border-radius: 4px;
+        }
+        .modal-content::-webkit-scrollbar-thumb:hover{
+            background: var(--text-light-color);
+        }
+
+        .modal-close-button{
+            position: absolute;
+            top: 15px;
+            right:15px;
+            background:none;
+            border:none;
+            font-size: 1.8em;
+            color: var(--text-light-color);
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+            border-radius: 50%;
+            transition: color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+        }
+        .modal-close-button:hover{
+            color:var(--text-color);
+            background-color: var(--button-hover-bg-color);
+        }
+        .modal-close-button:active{
+            background-color: var(--button-active-bg-color);
+            transform: scale(0.95);
+        }
+        .modal-title{
+            font-size: 1.6em;
+            font-weight:600;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+
+        .modal-body p,
+        .modal-body ul,
+        .modal-body h3{
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        .modal-body ul{
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+        .modal-body ul ul{
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        .modal-body strong{
+            font-weight: 600;
+        }
+        .modal-body h3{
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .modal-body h3:first-child{
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-text">Radian AI</div>
+        <div class="header-actions">
+            <button class="login" disabled title="Em desenvolvimento">Entrar</button>
+            <button class="signup" disabled title="Em desenvolvimento">Cadastrar</button>
+            <button class="help-icon" id="help-icon-element" aria-label="Ajuda" title="Ajuda">?</button>
+        </div>
+    </header>
+
+    <div class="main-content-area">
+        <div class="initial-view" id="initial-view-element">
+            <h1>Como posso ajudar?</h1>
+            <div class="suggestion-buttons-initial" id="suggestion-buttons-container-element">
+                <button data-prompt="Preciso de ajuda para analisar dados de vendas.">Analisar dados</button>
+                <button data-prompt="Me ajude a criar um plano de marketing para um novo produto.">Fazer um
+                    plano</button>
+                <button data-prompt="Preciso de ideias para um post de blog sobre IA.">Ajudar a escrever</button>
+                <button data-prompt="Resuma este texto para mim: [cole o texto aqui].">Resumir texto</button>
+            </div>
+            <div class="initial-input-area">
+                <input type="text" id="initial-message-input-element"
+                    placeholder="Pergunte alguma coisa ao Radian AI...">
+                <button id="initial-send-button-element">Enviar</button>
+            </div>
+        </div>
+
+        <div class="chat-view-container" id="chat-view-element">
+            <div id="chat-messages-container">
+            </div>
+            <div class="chat-input-area-bottom">
+                <input type="text" id="chat-message-input-bottom-element" placeholder="Digite sua mensagem...">
+                <button id="chat-send-button-bottom-element">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Ao enviar mensagens para o Radian AI, você aceita nossos <a href="#" id="terms-link-element">Termos</a> e
+            declara ter lido nossa <a href="#" id="privacy-link-element">Política de Privacidade</a>.</p>
+        <p>Desenvolvido pelo perfil @lucashaetingerr (GitHub).</p>
+    </footer>
+
+    <div class="modal-overlay" id="content-modal-element">
+        <div class="modal-content">
+            <button class="modal-close-button" id="modal-close-button-element" aria-label="Fechar">×</button>
+            <h2 class="modal-title" id="modal-title-content-element"></h2>
+            <div class="modal-body" id="modal-body-content-element">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialViewElement=document.getElementById('initial-view-element');
+            const chatViewElement=document.getElementById('chat-view-element');
+            const chatMessagesContainer=document.getElementById('chat-messages-container');
+
+            //---
+            const initialMessageInputElement=document.getElementById('initial-message-input-element');
+            const initialSendButtonElement=document.getElementById('initial-send-button-element');
+            const suggestionButtonsContainerElement=document.getElementById('suggestion-buttons-container-element');
+
+            //---
+            const chatMessageInputBottomElement=document.getElementById('chat-message-input-bottom-element');
+            const chatSendButtonBottomElement=document.getElementById('chat-send-button-bottom-element');
+
+            //---
+            const contentModalElement=document.getElementById('content-modal-element');
+            const modalCloseButtonElement=document.getElementById('modal-close-button-element');
+            const modalTitleContentElement=document.getElementById('modal-title-content-element');
+            const modalBodyContentElement=document.getElementById('modal-body-content-element');
+            const termsLinkElement=document.getElementById('terms-link-element');
+            const privacyLinkElement=document.getElementById('privacy-link-element');
+            const helpIconElement=document.getElementById('help-icon-element');
+
+            let isChatActive=false;
+            function activateChatView(){
+                if (!isChatActive){
+                    initialViewElement.classList.add('hidden');
+                    setTimeout(() => {
+                        initialViewElement.style.display = 'none';
+                    }, 300);
+                    chatViewElement.classList.add('visible');
+                    isChatActive=true;
+                }
+            }
+
+
+            function displayMessage(text,sender){
+                activateChatView();
+                const messageBubble=document.createElement('div');
+                messageBubble.classList.add('message-bubble',sender);
+                messageBubble.textContent=text;
+                chatMessagesContainer.appendChild(messageBubble);
+                chatMessagesContainer.scrollTop=chatMessagesContainer.scrollHeight;
+            }
+
+
+            function getAIResponse(userMessage){
+                setTimeout(() => {
+                    let aiText="Recebido! Processando sua solicitação: '" + userMessage.substring(0, 40)+(userMessage.length > 40 ? "..." : "") +"'";
+                    if (userMessage.toLowerCase().includes("olá") || userMessage.toLowerCase().includes("oi")) {
+                        aiText="Olá! Como posso te ajudar hoje?";
+                    } else if (userMessage.toLowerCase().includes("analisar dados")) {
+                        aiText="Entendido. Para analisar os dados, por favor, poderia me fornecer os dados ou mais detalhes sobre o tipo de análise que você precisa?";
+                    } else if (userMessage.toLowerCase().includes("fazer um plano") || userMessage.toLowerCase().includes("criar um plano")) {
+                        aiText="Excelente! Para começarmos a desenhar um plano, qual o objetivo principal e o contexto?";
+                    }
+                    displayMessage(aiText,'ai');
+                },800+Math.random()*700);
+            }
+
+
+            function processUserMessage(inputText){
+                const messageText=inputText.trim();
+                if (messageText){
+                    displayMessage(messageText,'user');
+                    getAIResponse(messageText);
+                }
+            }
+
+
+            initialSendButtonElement.addEventListener('click',() => {
+                processUserMessage(initialMessageInputElement.value);
+                initialMessageInputElement.value='';
+            });
+            initialMessageInputElement.addEventListener('keypress', (event) => {
+                if (event.key==='Enter'){
+                    processUserMessage(initialMessageInputElement.value);
+                    initialMessageInputElement.value = '';
+                }
+            });
+            if (suggestionButtonsContainerElement){
+                suggestionButtonsContainerElement.addEventListener('click', (event) => {
+                    const targetButton=event.target.closest('button');
+                    if (targetButton && targetButton.dataset.prompt){
+                        const promptText=targetButton.dataset.prompt;
+                        processUserMessage(promptText);
+                    }
+                });
+            }
+
+            chatSendButtonBottomElement.addEventListener('click', () => {
+                processUserMessage(chatMessageInputBottomElement.value);
+                chatMessageInputBottomElement.value = '';
+            });
+            chatMessageInputBottomElement.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    processUserMessage(chatMessageInputBottomElement.value);
+                    chatMessageInputBottomElement.value = '';
+                }
+            });
+
+            const termsModalContent = `
+                <h3>Termos de Serviço</h3>
+                <p><strong>Última atualização:</strong> ${new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p>Bem-vindo ao Radian AI! Ao utilizar este serviço, você concorda com os seguintes termos:</p>
+                <ul>
+                    <li><strong>Uso do Serviço:</strong> Este serviço é fornecido "COMO ESTÁ" e "COMO DISPONÍVEL". Esforçamo-nos para fornecer um serviço útil e preciso, mas não garantimos a perfeição.</li>
+                    <li><strong>Sem Garantias:</strong> Não oferecemos garantias de qualquer tipo, expressas ou implícitas, sobre a precisão, confiabilidade, adequação, completude ou disponibilidade das informações ou respostas geradas pela IA. As respostas podem conter erros, omissões ou informações desatualizadas.</li>
+                    <li><strong>Responsabilidade do Usuário:</strong> Você é inteiramente responsável por como utiliza as informações ou sugestões fornecidas por esta IA. Não nos responsabilizamos por quaisquer decisões ou ações tomadas com base no conteúdo gerado. Verifique informações importantes de forma independente.</li>
+                    <li><strong>Conteúdo Gerado por IA:</strong> O conteúdo fornecido pela IA é gerado artificialmente e não representa aconselhamento profissional (legal, financeiro, médico, etc.).</li>
+                    <li><strong>Coleta de Dados:</strong> Informações sobre o uso do serviço podem ser coletadas para melhorar a experiência do usuário, conforme detalhado em nossa Política de Privacidade.</li>
+                    <li><strong>Modificações:</strong> Podemos modificar ou descontinuar o serviço ou estes termos a qualquer momento sem aviso prévio.</li>
+                </ul>
+                <p>Ao utilizar este serviço, você reconhece que leu, entendeu e concorda em ficar vinculado por estes Termos.</p>
+            `;
+
+            const privacyModalContent = `
+                <h3>Política de Privacidade</h3>
+                <p><strong>Última atualização:</strong> ${new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p>Esta Política de Privacidade descreve como o Radian AI lida com informações em conexão com a sua operação.</p>
+                <ul>
+                    <li><strong>Informações que Processamos:</strong> Quando você envia uma mensagem, nós processamos o texto dessa mensagem para gerar uma resposta da IA. Poderemos coletar dados de uso anônimos para melhorar o serviço.</li>
+                    <li><strong>Uso das Informações:</strong> As informações das suas mensagens são usadas unicamente para permitir que a IA gere uma resposta relevante e para o funcionamento básico da interface de chat. Dados agregados e anônimos podem ser usados para análise e melhoria do serviço.</li>
+                    <li><strong>Armazenamento de Dados:</strong> As conversas podem ser armazenadas temporariamente para permitir o funcionamento adequado e melhoria do serviço. Não armazenaremos dados pessoais identificáveis por mais tempo do que o necessário.</li>
+                    <li><strong>Cookies:</strong> Este site pode usar cookies essenciais para a funcionalidade básica do site e para coletar dados de uso anônimos através de ferramentas de análise.</li>
+                    <li><strong>Compartilhamento de Informações:</strong> Não compartilharemos suas interações pessoais com terceiros, exceto conforme necessário para fornecer o serviço ou conforme exigido por lei.</li>
+                    <li><strong>Segurança:</strong> Tomamos medidas razoáveis para proteger as informações, mas nenhum sistema é 100% seguro.</li>
+                    <li><strong>Seus Direitos:</strong> Você pode ter certos direitos em relação aos seus dados, dependendo da sua jurisdição. Entre em contato conosco para mais informações.</li>
+                    <li><strong>Crianças:</strong> Este serviço não é direcionado a crianças menores de 13 anos (ou a idade mínima aplicável em sua jurisdição).</li>
+                    <li><strong>Alterações a esta Política:</strong> Podemos atualizar esta Política de Privacidade de tempos em tempos. Encorajamos você a revisá-la periodicamente.</li>
+                </ul>
+                <p>O uso contínuo do serviço após quaisquer alterações a esta política constituirá sua aceitação de tais alterações.</p>
+            `;
+
+            const helpModalContent = `
+                <h3>Como Usar o Radian AI</h3>
+                <p>Bem-vindo ao Radian AI! Aqui está um guia rápido para você começar:</p>
+                <ul>
+                    <li><strong>Iniciando uma Conversa:</strong>
+                        <ul>
+                            <li>Digite sua pergunta ou comando no campo de entrada no centro da página (na visualização inicial) ou na parte inferior (após o início do chat) e pressione "Enter" ou clique no botão "Enviar".</li>
+                            <li>Como alternativa, você pode clicar em um dos botões de sugestão, como "Analisar dados" ou "Fazer um plano", para começar com um comando predefinido.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Interagindo com a IA:</strong>
+                        <ul>
+                            <li>O Radian AI processará sua mensagem e fornecerá uma resposta na janela de chat.</li>
+                            <li>As respostas são geradas por uma IA e servem para fins informativos e de assistência.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Interface do Chat:</strong>
+                        <ul>
+                            <li>Suas mensagens aparecerão no lado direito, e as respostas da IA no lado esquerdo.</li>
+                            <li>A janela de chat rolará automaticamente para a mensagem mais recente.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Navegação e Opções:</strong>
+                        <ul>
+                            <li><strong>Entrar/Cadastrar:</strong> Estes botões estão atualmente desabilitados (funcionalidade em desenvolvimento).</li>
+                            <li><strong>Ajuda (?):</strong> Clique no ícone de interrogação no cabeçalho para visualizar este guia de ajuda novamente.</li>
+                        </ul>
+                    </li>
+                     <li><strong>Termos e Privacidade:</strong>
+                        <ul>
+                            <li>Você pode encontrar links para nossos Termos de Serviço e Política de Privacidade no rodapé da página. Estes documentos fornecem informações importantes sobre o uso desta ferramenta.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>Aproveite para explorar as capacidades do Radian AI!</p>
+            `;
+
+
+
+
+            function showModal(title, content){
+                modalTitleContentElement.textContent =title;
+                modalBodyContentElement.innerHTML= content;
+                contentModalElement.classList.add('visible');
+                document.body.style.overflow='hidden';
+            }
+
+            function hideModal(){
+                contentModalElement.classList.remove('visible');
+                document.body.style.overflow ='';
+            }
+
+            termsLinkElement.addEventListener('click', (event) => {
+                event.preventDefault();
+                showModal('Termos de Serviço',termsModalContent);
+            });
+
+            privacyLinkElement.addEventListener('click', (event) => {
+                event.preventDefault();
+                showModal('Política de Privacidade', privacyModalContent);
+            });
+
+            helpIconElement.addEventListener('click', (event) => {
+                event.preventDefault();
+                showModal('Ajuda e Informações',helpModalContent);
+            });
+
+
+            modalCloseButtonElement.addEventListener('click', hideModal);
+
+
+            contentModalElement.addEventListener('click', (event) => {
+                if (event.target===contentModalElement) {
+                    hideModal();
+                }
+            });
+
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key==='Escape' && contentModalElement.classList.contains('visible')) {
+                    hideModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
